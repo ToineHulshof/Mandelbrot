@@ -6,14 +6,14 @@ import Data.Foldable (fold)
 import qualified Data.ByteString.Lazy.Char8 as B
 
 type RGB = (Int8, Int8, Int8)
-type HSV = (Int, Double, Double)
+type HSV = (Double, Double, Double)
 type Complex = (Double, Double)
 
 width :: Int
-width = 640--2560
+width = 2560
 
 height :: Int 
-height = 400--1600
+height = 1600
 
 maxDepth :: Int
 maxDepth = 100
@@ -28,19 +28,20 @@ coordinateToComplex (y, x) = (fromIntegral x / scale - 1 - 2 * offset, fromInteg
         offset = (fromIntegral (width - height) / fromIntegral height) / 2
 
 escapeTime :: Complex -> (Int, Complex)
-escapeTime z = (escape z (-0.8, 0.156) maxDepth, z)
--- escapeTime c = escape c c maxDepth
+escapeTime z = (escape z (-0.835, -0.2321) maxDepth, z)
+-- escapeTime z = (escape z z maxDepth, z)
 
 depthTohsv :: (Int, Complex) -> HSV
-depthTohsv (x, c) = (360 - x * 360 `div` maxDepth + 1 - round (log $ norm c), 100, if x == 0 then 0 else 100)
+depthTohsv (x, z) = (360 - (fromIntegral x * 120) / fromIntegral maxDepth, 100, if x == 0 then 0 else 100 - fromIntegral x)
+-- depthTohsv (x, z) = (360 - ((fromIntegral x + 1 - (log (norm z))) * 360) / fromIntegral maxDepth, 100, if x == 0 then 0 else 100)
 -- depthTohsv x = (x * 240 `div` maxDepth, fromIntegral x * 100 / fromIntegral maxDepth, fromIntegral x * 80 / fromIntegral maxDepth)
 
 hsvTorgb :: HSV -> RGB
 hsvTorgb (h, s, v) = (round $ (r' + m) * 255, round $ (g' + m) * 255, round $ (b' + m) * 255)
     where
-        (r', g', b') = hueTorgb h c x
+        (r', g', b') = hueTorgb (h, c, x)
         c = v / 100 * s / 100
-        x = c * (1 - abs ((fromIntegral h / 60) % 2 - 1))
+        x = c * (1 - abs ((h / 60) % 2 - 1))
         m = v / 100 - c
 
 (%) :: Double -> Double -> Double
@@ -48,8 +49,8 @@ hsvTorgb (h, s, v) = (round $ (r' + m) * 255, round $ (g' + m) * 255, round $ (b
     | x < 2 = x
     | otherwise = (x - y) % y
 
-hueTorgb :: Int -> Double -> Double -> (Double, Double, Double)
-hueTorgb h c x
+hueTorgb :: HSV -> HSV
+hueTorgb (h, c, x)
     | h < 60 = (c, x, 0)
     | h < 120 = (x, c, 0)
     | h < 180 = (0, c, x)
@@ -75,4 +76,4 @@ escape z c d
     | otherwise = escape (square z `add` c) c (d - 1)
 
 main :: IO ()
-main = B.writeFile "julia.ppm" $ B.pack ("P6\n" ++ show width ++ " " ++ show height ++ "\n255\n") `B.append` fold (concatMap byteRGB pixels)
+main = B.writeFile "mandelbrot.ppm" $ B.pack ("P6\n" ++ show width ++ " " ++ show height ++ "\n255\n") `B.append` fold (concatMap byteRGB pixels)
