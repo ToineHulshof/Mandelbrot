@@ -2,4 +2,4 @@
 
 A simple Haskell project to generate mandelbrot / julia set images.
 
-![](juliablack.png)
+![](julia.png)

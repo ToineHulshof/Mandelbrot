@@ -16,7 +16,7 @@ height :: Int
 height = 1600
 
 maxDepth :: Int
-maxDepth = 100
+maxDepth = 200
 
 byteRGB :: RGB -> [B.ByteString]
 byteRGB (r, g, b) = [encode r, encode g, encode b]
@@ -28,11 +28,11 @@ coordinateToComplex (y, x) = (fromIntegral x / scale - 1 - 2 * offset, fromInteg
         offset = (fromIntegral (width - height) / fromIntegral height) / 2
 
 escapeTime :: Complex -> (Int, Complex)
-escapeTime z = (escape z (-0.835, -0.2321) maxDepth, z)
+escapeTime z = (escape z (-0.8, 0.156) maxDepth, z)
 -- escapeTime z = (escape z z maxDepth, z)
 
 depthTohsv :: (Int, Complex) -> HSV
-depthTohsv (x, z) = (360 - (fromIntegral x * 120) / fromIntegral maxDepth, 100, if x == 0 then 0 else 100 - fromIntegral x)
+depthTohsv (x, z) = (360 - (fromIntegral x * 120) / fromIntegral maxDepth, 100, if x == 0 then 0 else 110 - (fromIntegral x * 100 / fromIntegral maxDepth))
 -- depthTohsv (x, z) = (360 - ((fromIntegral x + 1 - (log (norm z))) * 360) / fromIntegral maxDepth, 100, if x == 0 then 0 else 100)
 -- depthTohsv x = (x * 240 `div` maxDepth, fromIntegral x * 100 / fromIntegral maxDepth, fromIntegral x * 80 / fromIntegral maxDepth)
 
