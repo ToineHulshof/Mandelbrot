@@ -27,12 +27,12 @@ coordinateToComplex (y, x) = (fromIntegral x / scale - 1 - 2 * offset, fromInteg
         scale = fromIntegral height / 2
         offset = (fromIntegral (width - height) / fromIntegral height) / 2
 
-escapeTime :: Complex -> Int
-escapeTime c = escape c (-0.8, 0.156) maxDepth
+escapeTime :: Complex -> (Int, Complex)
+escapeTime z = (escape z (-0.8, 0.156) maxDepth, z)
 -- escapeTime c = escape c c maxDepth
 
-depthTohsv :: Int -> HSV
-depthTohsv x = (360 - x * 360 `div` maxDepth, 100, if x == 0 then 0 else 100)
+depthTohsv :: (Int, Complex) -> HSV
+depthTohsv (x, c) = (360 - x * 360 `div` maxDepth + 1 - round (log $ norm c), 100, if x == 0 then 0 else 100)
 -- depthTohsv x = (x * 240 `div` maxDepth, fromIntegral x * 100 / fromIntegral maxDepth, fromIntegral x * 80 / fromIntegral maxDepth)
 
 hsvTorgb :: HSV -> RGB
